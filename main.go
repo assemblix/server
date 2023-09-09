@@ -198,7 +198,7 @@ func main() {
 					http.Error(w, err.Error(), http.StatusInternalServerError)
 					return
 				}
-				_, err = db.Exec("INSERT INTO tokens (id, token) VALUES (?, ?)", id, tokenValue)
+				_, err = db.Exec("INSERT OR REPLACE INTO tokens (id, token) VALUES (?, ?)", id, tokenValue)
 				if err != nil {
 					fmt.Println(errorPrefix, err)
 					http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -252,7 +252,6 @@ func main() {
 				return
 			}
 
-			fmt.Println(id)
 			row = db.QueryRow("SELECT username FROM users WHERE id = ?", id)
 			var username string
 			err = row.Scan(&username)
