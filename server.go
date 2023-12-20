@@ -19,8 +19,14 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 	switch url[0] {
 	case "":
-		http.Redirect(w, r, "/home", http.StatusSeeOther)
-		return
+		switch r.Method {
+		case http.MethodGet:
+			http.Redirect(w, r, "/home", http.StatusSeeOther)
+			return
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
 	case "register":
 		switch r.Method {
 		case http.MethodGet:
@@ -118,39 +124,45 @@ func server(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "home":
-		cookies := r.Cookies()
-		var tokenCookie *http.Cookie
-		for _, cookie := range cookies {
-			if cookie.Name == "token" {
-				tokenCookie = cookie
-				break
+		switch r.Method {
+		case http.MethodGet:
+			cookies := r.Cookies()
+			var tokenCookie *http.Cookie
+			for _, cookie := range cookies {
+				if cookie.Name == "token" {
+					tokenCookie = cookie
+					break
+				}
 			}
-		}
-		if tokenCookie == nil {
-			http.Redirect(w, r, "/register", http.StatusSeeOther)
-			return
-		}
+			if tokenCookie == nil {
+				http.Redirect(w, r, "/register", http.StatusSeeOther)
+				return
+			}
 
-		buf, err := pages.ReadFile("pages/home.html")
-		if err != nil {
-			giveError(w, err)
-		}
-		var body string = string(buf)
+			buf, err := pages.ReadFile("pages/home.html")
+			if err != nil {
+				giveError(w, err)
+			}
+			var body string = string(buf)
 
-		tmpl, err := template.New("home").Parse(body)
-		if err != nil {
-			giveError(w, err)
-			return
-		}
+			tmpl, err := template.New("home").Parse(body)
+			if err != nil {
+				giveError(w, err)
+				return
+			}
 
-		user, err := userFromToken(tokenCookie.Value)
-		if err != nil {
-			giveError(w, err)
-			return
-		}
+			user, err := userFromToken(tokenCookie.Value)
+			if err != nil {
+				giveError(w, err)
+				return
+			}
 
-		if err := tmpl.Execute(w, user); err != nil {
-			giveError(w, err)
+			if err := tmpl.Execute(w, user); err != nil {
+				giveError(w, err)
+				return
+			}
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
 	case "login":
@@ -267,8 +279,7 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 		w.Write(message)
 	}
 
-	var version string = "/api/v1"
-	var url []string = strings.Split(strings.TrimRight(strings.TrimLeft(strings.TrimLeft(r.URL.Path, "/"), version), "/"), "/")
+	var url []string = strings.Split(strings.TrimRight(strings.TrimLeft(strings.TrimLeft(r.URL.Path, "/"), "/api/v1"), "/"), "/")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch url[0] {
@@ -289,6 +300,7 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 		apiWrite(w, obj)
 	default:
 		apiWriteNotFound(w)
+		return
 	}
 }
 
