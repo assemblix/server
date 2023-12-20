@@ -14,7 +14,6 @@ import (
 
 func server(w http.ResponseWriter, r *http.Request) {
 	var url []string = strings.Split(strings.TrimRight(strings.TrimLeft(r.URL.Path, "/"), "/"), "/")
-
 	w.Header().Set("Content-Type", "text/html")
 
 	switch url[0] {
