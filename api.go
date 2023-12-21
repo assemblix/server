@@ -26,7 +26,7 @@ func newToken(id int) (string, error) {
 	return tokenString, nil
 }
 
-func createUser(username, password string, cash int, db *sql.DB) (id int, token string, err error) {
+func createUser(username, password string, cash int, admin bool, db *sql.DB) (id int, token string, err error) {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return 0, "", err
@@ -47,12 +47,12 @@ func createUser(username, password string, cash int, db *sql.DB) (id int, token 
 	if err != nil {
 		return 0, "", err
 	}
-	_, err = db.Exec("INSERT INTO tokens (id, token) VALUES(?, ?)", id, userToken)
+	_, err = db.Exec("INSERT OR REPLACE INTO tokens (id, token) VALUES(?, ?)", id, userToken)
 	if err != nil {
 		return 0, "", err
 	}
 
-	_, err = db.Exec("INSERT INTO userdata (id, cash, admin) VALUES (?, ?, ?)", id, cash, false)
+	_, err = db.Exec("INSERT OR REPLACE INTO userdata (id, cash, admin) VALUES (?, ?, ?)", id, cash, false)
 	if err != nil {
 		return 0, "", err
 	}

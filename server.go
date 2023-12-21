@@ -99,7 +99,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 				return true
 			}(); valid {
-				_, token, err := createUser(r.FormValue("username"), r.FormValue("password"), joinCash, db)
+				_, token, err := createUser(r.FormValue("username"), r.FormValue("password"), joinCash, false, db)
 				if err != nil {
 					giveError(w, err)
 					return
