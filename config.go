@@ -10,7 +10,7 @@ const ( // website
 	usernameRegexp        string = "^[a-zA-Z0-9_]+$"
 
 	minimumPasswordLength int = 8
-	maximumPasswordLength int = 50
+	maximumPasswordLength int = 72
 
 	recaptchaSecret string = "6LcNHVUnAAAAAICv4oKEzhh6UTHk3QraFDfdde01"
 
