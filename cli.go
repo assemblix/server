@@ -67,7 +67,7 @@ func cli() {
 			fmt.Println(" help       : show this menu")
 			fmt.Println(" clear, cls : clear the screen")
 			fmt.Println(" db         : open sqlite3")
-			fmt.Println(" usernew    : create a new user ")
+			fmt.Println(" useradd    : create a new user ")
 			fmt.Println(" quit, exit : exit the program")
 		case "":
 		case "quit", "exit":
