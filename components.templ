@@ -1,0 +1,58 @@
+package main
+
+import "fmt"
+
+templ home(username string, cash int) {
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8"></meta>
+        <title>Home</title>
+    </head>
+    <body>
+        <h1>Home</h1>
+        <h2>Welcome, { username }</h2>
+        <h3>Cash: { fmt.Sprint(cash) }</h3>
+    </body>
+    </html>
+}
+
+templ login() {
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <title>Login</title>
+    </head>
+    <body>
+        <h1>Login</h1>
+        <form method="post">
+            <input type="text" name="username" placeholder="Username"></input><br></br>
+            <input type="password" name="password" placeholder="Password"></input><br></br>
+            <button type="submit" name="submit">Login</button><br></br>
+            <a href="/register">I don't have an account!</a>
+        </form>
+    </body>
+    </html>
+}
+
+templ register(message string) {
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <title>Register</title>
+        <script src='https://www.google.com/recaptcha/api.js' async defer></script>
+    </head>
+    <body>
+        <h1>Register</h1>
+        <form method="post">
+            <input type="text" name="username" placeholder="Username"></input><br></br>
+            <input type="password" name="password" placeholder="Password"></input><br></br>
+            <input type="password" name="confirmPassword" placeholder="Confirm Password"></input><br></br>
+            <div class="g-recaptcha" data-sitekey="6LcNHVUnAAAAACSAuTIgc_NOaBk4CS-Cm4yXI4E7"></div>
+            <button type="submit" name="submit">Register</button><br></br>
+            <a href="/login">I already have an account!</a>
+        </form>
+        <p>{ message }</p>
+    </body>
+    </html>
+}
