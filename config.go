@@ -2,6 +2,8 @@ package main
 
 const ( // server
 	port string = ":8080"
+
+	appName string = "AssemblixServer" // used for log directory
 )
 
 const ( // website
@@ -17,13 +19,8 @@ const ( // website
 	joinCash int = 20
 )
 
-const ( // debugging
-	debugPrefix   string = "\033[0;33m[DEBUG]\033[0m"
-	errorPrefix   string = "\033[0;91m[ERROR]\033[0m"
-	warningPrefix string = "\033[0;93m[WARNING]\033[0m"
-)
-
-var ( // whitelist
-	whitelistOn bool     = false
-	whitelist   []string = []string{}
-)
+// const ( // debugging
+// 	debugPrefix   string = "\033[0;33m[DEBUG]\033[0m"
+// 	errorPrefix   string = "\033[0;91m[ERROR]\033[0m"
+// 	warningPrefix string = "\033[0;93m[WARNING]\033[0m"
+// )

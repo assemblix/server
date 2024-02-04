@@ -19,6 +19,7 @@ func newToken(id int) (string, error) {
 	token := make([]byte, length)
 	_, err := rand.Read(token)
 	if err != nil {
+		logError(err)
 		return "", err
 	}
 
@@ -29,31 +30,37 @@ func newToken(id int) (string, error) {
 func createUser(username, password string, cash int, admin bool, db *sql.DB) (id int, token string, err error) {
 	hashedBytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
+		logError(err)
 		return 0, "", err
 	}
 
 	_, err = db.Exec("INSERT INTO users (username, password, joined) VALUES(?, ?, ?)", username, hashedBytes, time.Now().Unix())
 	if err != nil {
+		logError(err)
 		return 0, "", err
 	}
 
 	row := db.QueryRow("SELECT id FROM users WHERE username = ?", username)
 	err = row.Scan(&id)
 	if err != nil {
+		logError(err)
 		return 0, "", err
 	}
 
 	userToken, err := newToken(id)
 	if err != nil {
+		logError(err)
 		return 0, "", err
 	}
 	_, err = db.Exec("INSERT OR REPLACE INTO tokens (id, token) VALUES(?, ?)", id, userToken)
 	if err != nil {
+		logError(err)
 		return 0, "", err
 	}
 
 	_, err = db.Exec("INSERT OR REPLACE INTO userdata (id, cash, admin) VALUES (?, ?, ?)", id, cash, false)
 	if err != nil {
+		logError(err)
 		return 0, "", err
 	}
 
@@ -76,18 +83,21 @@ func verifyRecaptcha(response, secret string) bool {
 
 	resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", data)
 	if err != nil {
+		logError(err)
 		return false
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		logError(err)
 		return false
 	}
 
 	var recaptchaResp recaptchaResponse
 	err = json.Unmarshal(body, &recaptchaResp)
 	if err != nil {
+		logError(err)
 		return false
 	}
 
@@ -108,18 +118,21 @@ func userFromToken(token string) (apiUserObject, error) {
 
 	id, err := idFromToken(token)
 	if err != nil {
+		logError(err)
 		return apiUserObject{}, err
 	}
 	object.Id = id
 
 	username, err := usernameFromId(id)
 	if err != nil {
+		logError(err)
 		return apiUserObject{}, err
 	}
 	object.Username = username
 
 	cash, err := cashFromId(id)
 	if err != nil {
+		logError(err)
 		return apiUserObject{}, err
 	}
 	object.Cash = cash
@@ -133,12 +146,14 @@ func userFromId(id int) (apiUserObject, error) {
 
 	username, err := usernameFromId(id)
 	if err != nil {
+		logError(err)
 		return apiUserObject{}, err
 	}
 	object.Username = username
 
 	cash, err := cashFromId(id)
 	if err != nil {
+		logError(err)
 		return apiUserObject{}, err
 	}
 	object.Cash = cash
