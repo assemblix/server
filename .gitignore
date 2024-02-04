@@ -1,2 +1,4 @@
 data.db
 main
+cdn/*
+*.log
