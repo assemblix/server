@@ -31,17 +31,20 @@ func server(w http.ResponseWriter, r *http.Request) {
 		case http.MethodGet:
 			buf, err := pages.ReadFile("pages/register.html")
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 			}
 			var body string = string(buf)
 
 			tmpl, err := template.New("register").Parse(body)
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			if err := tmpl.Execute(w, nil); err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -52,23 +55,27 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 			buf, err := pages.ReadFile("pages/register.html")
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 			}
 			var body string = string(buf)
 
 			tmpl, err := template.New("register").Parse(body)
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			if err := r.ParseForm(); err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			match, err := regexp.MatchString(usernameRegexp, r.FormValue("username"))
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -86,8 +93,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 					response.Message = "Passwords do not match."
 					return false
 				}
-				row := db.QueryRow("SELECT id FROM users WHERE username = ?", r.FormValue("username"))
-				err := row.Scan()
+				_, err := idFromUsername(r.FormValue("username"))
 				if err != sql.ErrNoRows {
 					response.Message = "That username already exists."
 					return false
@@ -95,12 +101,14 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 				if !verifyRecaptcha(r.FormValue("g-recaptcha-response"), recaptchaSecret) {
 					response.Message = "reCAPTCHA verification failed."
+					return false
 				}
 
 				return true
 			}(); valid {
 				_, token, err := createUser(r.FormValue("username"), r.FormValue("password"), joinCash, false, db)
 				if err != nil {
+					logError(err)
 					giveError(w, err)
 					return
 				}
@@ -115,6 +123,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 			}
 
 			if err := tmpl.Execute(w, response); err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -140,23 +149,28 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 			buf, err := pages.ReadFile("pages/home.html")
 			if err != nil {
+				logError(err)
 				giveError(w, err)
+				return
 			}
 			var body string = string(buf)
 
 			tmpl, err := template.New("home").Parse(body)
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			user, err := userFromToken(tokenCookie.Value)
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			if err := tmpl.Execute(w, user); err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -169,6 +183,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 		case http.MethodGet:
 			buf, err := pages.ReadFile("pages/login.html")
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -176,8 +191,8 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 			tmpl, err := template.New("login").Parse(body)
 			if err != nil {
-				fmt.Println(errorPrefix, err)
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				logError(err)
+				giveError(w, err)
 				return
 			}
 
@@ -185,6 +200,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 		case http.MethodPost:
 			buf, err := pages.ReadFile("pages/login.html")
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -192,8 +208,8 @@ func server(w http.ResponseWriter, r *http.Request) {
 
 			tmpl, err := template.New("login").Parse(body)
 			if err != nil {
-				fmt.Println(errorPrefix, err)
-				http.Error(w, err.Error(), http.StatusInternalServerError)
+				logError(err)
+				giveError(w, err)
 				return
 			}
 
@@ -202,6 +218,7 @@ func server(w http.ResponseWriter, r *http.Request) {
 			}{}
 
 			if err := r.ParseForm(); err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -213,17 +230,20 @@ func server(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			tokenValue, err := newToken(id)
 			if err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
 
 			if err := addUserToken(id, tokenValue); err != nil {
+				logError(err)
 				giveError(w, err)
 				return
 			}
@@ -248,7 +268,8 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 			Message: "Page Not Found",
 		})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			logError(err)
+			giveError(w, err)
 			return
 		}
 
@@ -260,7 +281,8 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 			Message: err.Error(),
 		})
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			logError(err)
+			giveError(w, err)
 			return
 		}
 
@@ -270,7 +292,8 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 	var apiWrite = func(w http.ResponseWriter, v any) {
 		message, err := json.Marshal(v)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			logError(err)
+			giveError(w, err)
 			return
 		}
 
@@ -278,7 +301,15 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 		w.Write(message)
 	}
 
-	var url []string = strings.Split(strings.TrimRight(strings.TrimLeft(strings.TrimLeft(r.URL.Path, "/"), "/api/v1"), "/"), "/")
+	var url []string = strings.Split( // /api/v1/user/ -> [user] && /api/v1/something/etc -> [something, etc]
+		strings.TrimRight(
+			strings.TrimLeft(
+				strings.TrimLeft(
+					r.URL.Path,
+					"/"),
+				"/api/v1"),
+			"/"),
+		"/")
 	w.Header().Set("Content-Type", "application/json")
 
 	switch url[0] {
@@ -292,6 +323,7 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 
 		obj, err := userFromId(id)
 		if err != nil {
+			logError(err)
 			apiWriteError(w, err)
 			return
 		}
