@@ -18,7 +18,7 @@ const (
 
 var cliBrodcast = make(chan string)
 
-func cli() {
+func cli() error {
 	fmt.Println(welcomeMessage)
 
 	reader := bufio.NewReader(os.Stdin)
@@ -71,7 +71,7 @@ func cli() {
 			fmt.Println(" quit, exit : exit the program")
 		case "":
 		case "quit", "exit":
-			return
+			return nil
 		case "clear", "cls":
 			cmd := exec.Command("clear")
 			cmd.Stdout = os.Stdout
