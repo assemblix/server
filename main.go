@@ -4,38 +4,36 @@ import (
 	"embed"
 	"fmt"
 	"net/http"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 //go:embed pages/*
 var pages embed.FS
 
+//go:embed cdn/*
+var cdn embed.FS
+
+var exit = make(chan error, 1)
+
 func main() {
+	defer db.Close()
+
 	http.HandleFunc("/", server)
 	http.HandleFunc("/api/v1/", apiv1)
+	http.Handle("/cdn/", http.FileServer(http.FS(cdn)))
 
 	go func() {
-		cli()
-		exit()
+		exit <- cli()
 	}()
-
 	go func() {
 		if err := http.ListenAndServe(port, nil); err != nil {
+			logError(err)
 			fmt.Println(err)
-			exit()
+			exit <- err
 		}
 	}()
 
-	select {
-	case <-exitChan:
+	err := <-exit
+	if err != nil {
+		fmt.Println(err)
 	}
-
-	db.Close()
-}
-
-var exitChan = make(chan struct{})
-
-func exit() {
-	exitChan <- struct{}{}
 }
