@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-const format string = "[dateTtime] [type] error"
-
 var logDir string = "./"
 var logFile *os.File
 
@@ -20,6 +18,7 @@ func init() {
 		dir := fmt.Sprintf("C:\\ProgramData\\%s\\", appName)
 		err := os.Mkdir(dir, 0o755)
 		if err != nil {
+			logWarning(err)
 			logDir = "./"
 		}
 		logDir = dir
@@ -31,6 +30,7 @@ func init() {
 	for {
 		logFile, err = os.OpenFile(filepath.Join(logDir, "assemblixserver.log"), os.O_APPEND|os.O_CREATE, 0o644)
 		if err != nil {
+			logWarning(err)
 			logDir = "./"
 			continue
 		}
@@ -39,44 +39,50 @@ func init() {
 }
 
 func logError(err error) {
+	var parsed = parseFormat("ERROR", err)
 	if logFile == nil {
+		fmt.Println(parsed)
 		return
 	}
-	fmt.Fprintln(logFile, parseFormat("ERROR", err))
+	fmt.Fprintln(logFile, parsed)
 }
 func logWarning(err error) {
+	var parsed = parseFormat("WARNING", err)
 	if logFile == nil {
+		fmt.Println(parsed)
 		return
 	}
-	fmt.Fprintln(logFile, parseFormat("WARNING", err))
+	fmt.Fprintln(logFile, parsed)
 }
 func logInfo(err error) {
+	var parsed = parseFormat("INFO", err)
 	if logFile == nil {
+		fmt.Println(parsed)
 		return
 	}
-	fmt.Fprintln(logFile, parseFormat("INFO", err))
+	fmt.Fprintln(logFile, parsed)
 }
 
 func parseFormat(logType string, err error) string {
-	result := regexp.MustCompile(`(\\)?\bdate\b`).ReplaceAllStringFunc(format, func(match string) string {
+	result := regexp.MustCompile(`(\\)?date`).ReplaceAllStringFunc(logFormat, func(match string) string {
 		if match[0] == '\\' {
 			return match
 		}
 		return time.Now().Format("2006-01-02")
 	})
-	result = regexp.MustCompile(`(\\)?\btime\b`).ReplaceAllStringFunc(result, func(match string) string {
+	result = regexp.MustCompile(`(\\)?time`).ReplaceAllStringFunc(result, func(match string) string {
 		if match[0] == '\\' {
 			return match
 		}
 		return time.Now().Format("15:04:05")
 	})
-	result = regexp.MustCompile(`(\\)?\btime\b`).ReplaceAllStringFunc(result, func(match string) string {
+	result = regexp.MustCompile(`(\\)?type`).ReplaceAllStringFunc(result, func(match string) string {
 		if match[0] == '\\' {
 			return match
 		}
 		return logType
 	})
-	result = regexp.MustCompile(`(\\)?\btime\b`).ReplaceAllStringFunc(result, func(match string) string {
+	result = regexp.MustCompile(`(\\)?error`).ReplaceAllStringFunc(result, func(match string) string {
 		if match[0] == '\\' {
 			return match
 		}
