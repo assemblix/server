@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/envy"
 )
 
@@ -31,7 +29,7 @@ func init() {
 	var err error
 	recaptchaSecret, err = envy.MustGet("recaptchaSecret")
 	if err != nil {
-		fmt.Println(err)
+		logError(err)
 		return
 	}
 }
