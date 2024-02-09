@@ -10,8 +10,6 @@ import (
 )
 
 const (
-	welcomeMessage string = "Assemblix Server  Copyright (C) 2023 Assemblix.xyz"
-
 	ps1 string = "> "
 	ps2 string = ">> "
 )
@@ -19,7 +17,23 @@ const (
 var cliBrodcast = make(chan string)
 
 func cli() error {
-	fmt.Println(welcomeMessage)
+	var license string = "Assemblix Server"
+	func() {
+		file, err := os.Open("LICENSE")
+		if err != nil {
+			logWarning(err)
+			return
+		}
+		scanner := bufio.NewScanner(file)
+		var line uint8 = 1
+		for scanner.Scan() {
+			if line == 3 {
+				license += "  " + scanner.Text()
+			}
+			line++
+		}
+	}()
+	fmt.Println(license)
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
