@@ -1,0 +1,13 @@
+:root {
+    --primaryColor: #ffffff;
+    --secondaryColor: #007af6;
+    --ternaryColor: #00478b;
+    --quaternaryColor: #001624;
+}
+
+html {
+    background-color: var(--primaryColor);
+}
+body {
+    margin: auto;
+}

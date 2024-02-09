@@ -1,5 +1,6 @@
 data.db
 main
 cdn/*
+!cdn/*.css
 *.log
 .env
