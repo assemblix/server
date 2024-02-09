@@ -2,3 +2,4 @@ data.db
 main
 cdn/*
 *.log
+.env
