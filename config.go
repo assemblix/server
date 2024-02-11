@@ -1,9 +1,5 @@
 package main
 
-import (
-	"github.com/gobuffalo/envy"
-)
-
 const ( // server
 	port string = ":8080"
 
@@ -19,18 +15,7 @@ const ( // website
 	minimumPasswordLength int = 8
 	maximumPasswordLength int = 72
 
+	recaptchaSecret = "6LcNHVUnAAAAAICv4oKEzhh6UTHk3QraFDfdde01"
+
 	joinCash int = 20
 )
-
-var (
-	recaptchaSecret string
-)
-
-func init() {
-	var err error
-	recaptchaSecret, err = envy.MustGet("recaptchaSecret")
-	if err != nil {
-		logError(err)
-		return
-	}
-}
