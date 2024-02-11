@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>Settings</title>
+    </head>
+    
+    <body>
+        <h1>Settings</h1>
+        <form method="post">
+            <span>Username</span>
+            <input type="text" name="username" placeholder="Username">
+            <br>
+
+            <span>Password</span>
+            <input type="password" name="password" placeholder="Password">
+            <br>
+
+            <input type="submit" value="Apply">
+
+            {{if .Message}}
+                <p>{{.Message}}</p>
+            {{end}}
+        </form>
+    </body>
+</html>
