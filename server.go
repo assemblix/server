@@ -1,12 +1,8 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
-	"fmt"
-	"html/template"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -27,238 +23,13 @@ func server(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "register":
-		switch r.Method {
-		case http.MethodGet:
-			buf, err := pages.ReadFile("pages/register.html")
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-			}
-			var body string = string(buf)
-
-			tmpl, err := template.New("register").Parse(body)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			if err := tmpl.Execute(w, nil); err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-		case http.MethodPost:
-			response := struct {
-				Message string `json:"message"`
-			}{}
-
-			buf, err := pages.ReadFile("pages/register.html")
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-			}
-			var body string = string(buf)
-
-			tmpl, err := template.New("register").Parse(body)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			if err := r.ParseForm(); err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			match, err := regexp.MatchString(usernameRegexp, r.FormValue("username"))
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			if valid := func() bool {
-				if len(r.FormValue("username")) < minimumUsernameLength || len(r.FormValue("username")) > maximumUsernameLength || !match {
-					response.Message = fmt.Sprintf("Username minimum length: %s, Maximum length: %s\n, Regexp: %s", fmt.Sprint(minimumUsernameLength), fmt.Sprint(maximumUsernameLength), usernameRegexp)
-					return false
-				}
-				if len(r.FormValue("password")) < minimumPasswordLength || len(r.FormValue("password")) > maximumPasswordLength {
-					response.Message = fmt.Sprintf("Password minimum length: %s, Maximum length: %s\n", fmt.Sprint(minimumPasswordLength), fmt.Sprint(maximumPasswordLength))
-					return false
-				}
-				if r.FormValue("password") != r.FormValue("confirmPassword") {
-					response.Message = "Passwords do not match."
-					return false
-				}
-				_, err := idFromUsername(r.FormValue("username"))
-				if err != sql.ErrNoRows {
-					response.Message = "That username already exists."
-					return false
-				}
-
-				if !verifyRecaptcha(r.FormValue("g-recaptcha-response"), recaptchaSecret) {
-					response.Message = "reCAPTCHA verification failed."
-					return false
-				}
-
-				return true
-			}(); valid {
-				_, token, err := createUser(r.FormValue("username"), r.FormValue("password"), joinCash, false, db)
-				if err != nil {
-					logError(err)
-					giveError(w, err)
-					return
-				}
-
-				http.SetCookie(w, &http.Cookie{
-					Name:  "token",
-					Value: token,
-				})
-
-				http.Redirect(w, r, "/home", http.StatusSeeOther)
-				return
-			}
-
-			if err := tmpl.Execute(w, response); err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
+		register(w, r)
 	case "home":
-		switch r.Method {
-		case http.MethodGet:
-			cookies := r.Cookies()
-			var tokenCookie *http.Cookie
-			for _, cookie := range cookies {
-				if cookie.Name == "token" {
-					tokenCookie = cookie
-					break
-				}
-			}
-			if tokenCookie == nil {
-				http.Redirect(w, r, "/register", http.StatusSeeOther)
-				return
-			}
-
-			buf, err := pages.ReadFile("pages/home.html")
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-			var body string = string(buf)
-
-			tmpl, err := template.New("home").Parse(body)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			user, err := userFromToken(tokenCookie.Value)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			if err := tmpl.Execute(w, user); err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
+		home(w, r)
+	case "settings":
+		settings(w, r)
 	case "login":
-		switch r.Method {
-		case http.MethodGet:
-			buf, err := pages.ReadFile("pages/login.html")
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-			var body string = string(buf)
-
-			tmpl, err := template.New("login").Parse(body)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			tmpl.Execute(w, nil)
-		case http.MethodPost:
-			buf, err := pages.ReadFile("pages/login.html")
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-			var body string = string(buf)
-
-			tmpl, err := template.New("login").Parse(body)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			response := struct {
-				Message string `json:"Message"`
-			}{}
-
-			if err := r.ParseForm(); err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			id, err := idFromUsername(r.FormValue("username"))
-			if err == sql.ErrNoRows {
-				response.Message = "Username or password incorrect."
-				tmpl.Execute(w, response)
-				return
-			}
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			tokenValue, err := newToken(id)
-			if err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			if err := addUserToken(id, tokenValue); err != nil {
-				logError(err)
-				giveError(w, err)
-				return
-			}
-
-			http.SetCookie(w, &http.Cookie{
-				Name:  "token",
-				Value: tokenValue,
-			})
-
-			http.Redirect(w, r, "/home", http.StatusSeeOther)
-			return
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
+		login(w, r)
 	}
 }
 
@@ -321,7 +92,7 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		obj, err := userFromId(id)
+		obj, err := userFromId(id, permUser)
 		if err != nil {
 			logError(err)
 			apiWriteError(w, err)
