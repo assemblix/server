@@ -4,11 +4,7 @@ import (
 	"crypto/rand"
 	"database/sql"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"net/url"
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
@@ -70,38 +66,38 @@ func addUserToken(id int, token string) error {
 	return err
 }
 
-type recaptchaResponse struct {
-	Success    bool     `json:"success"`
-	ErrorCodes []string `json:"error-codes"`
-}
+// type recaptchaResponse struct {
+// 	Success    bool     `json:"success"`
+// 	ErrorCodes []string `json:"error-codes"`
+// }
 
-func verifyRecaptcha(response, secret string) bool {
-	data := url.Values{}
-	data.Set("secret", secret)
-	data.Set("response", response)
+// func verifyRecaptcha(response, secret string) bool {
+// 	data := url.Values{}
+// 	data.Set("secret", secret)
+// 	data.Set("response", response)
 
-	resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", data)
-	if err != nil {
-		logError(err)
-		return false
-	}
-	defer resp.Body.Close()
+// 	resp, err := http.PostForm("https://www.google.com/recaptcha/api/siteverify", data)
+// 	if err != nil {
+// 		logError(err)
+// 		return false
+// 	}
+// 	defer resp.Body.Close()
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		logError(err)
-		return false
-	}
+// 	body, err := io.ReadAll(resp.Body)
+// 	if err != nil {
+// 		logError(err)
+// 		return false
+// 	}
 
-	var recaptchaResp recaptchaResponse
-	err = json.Unmarshal(body, &recaptchaResp)
-	if err != nil {
-		logError(err)
-		return false
-	}
+// 	var recaptchaResp recaptchaResponse
+// 	err = json.Unmarshal(body, &recaptchaResp)
+// 	if err != nil {
+// 		logError(err)
+// 		return false
+// 	}
 
-	return recaptchaResp.Success
-}
+// 	return recaptchaResp.Success
+// }
 
 type apiUserObject struct {
 	Id       int    `json:"id"`
