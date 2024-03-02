@@ -58,7 +58,7 @@ func createUser(username, password string, cash int, admin bool, db *sql.DB) (id
 		return 0, "", err
 	}
 
-	_, err = db.Exec("INSERT OR REPLACE INTO userdata (id, cash, admin) VALUES (?, ?, ?)", id, cash, false)
+	_, err = db.Exec("INSERT OR REPLACE INTO userdata (id, cash, admin) VALUES (?, ?, ?)", id, cash, admin)
 	if err != nil {
 		return 0, "", err
 	}
