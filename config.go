@@ -15,7 +15,5 @@ const ( // website
 	minimumPasswordLength int = 8
 	maximumPasswordLength int = 72
 
-	recaptchaSecret = "6LcNHVUnAAAAAICv4oKEzhh6UTHk3QraFDfdde01"
-
 	joinCash int = 20
 )

@@ -32,7 +32,7 @@ func main() {
 		}
 	}()
 
-	logInfo(fmt.Errorf("Server started."))
+	logInfo(fmt.Errorf("server started"))
 
 	err := <-exit
 	if err != nil {
