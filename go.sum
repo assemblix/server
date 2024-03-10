@@ -1,6 +1,6 @@
-github.com/NotWithering/argo v0.0.0-20240229223756-e7c7a26683a5 h1:FTj08Yq30/JzBPPtGVPZAObzQSjOo0fv0vY8dZU7kbg=
-github.com/NotWithering/argo v0.0.0-20240229223756-e7c7a26683a5/go.mod h1:r9u4NvZh8D4XFSTquh/uhZtIN+jd8qkUvb62MSex/Rg=
-github.com/mattn/go-sqlite3 v1.14.19 h1:fhGleo2h1p8tVChob4I9HpmVFIAkKGpiukdrgQbWfGI=
-github.com/mattn/go-sqlite3 v1.14.19/go.mod h1:2eHXhiwb8IkHr+BDWZGa96P6+rkvnG63S2DGjv9HUNg=
-golang.org/x/crypto v0.17.0 h1:r8bRNjWL3GshPW3gkd+RpvzWrZAwPS49OmTGZ/uhM4k=
-golang.org/x/crypto v0.17.0/go.mod h1:gCAAfMLgwOJRpTjQ2zCCt2OcSfYMTeZVSRtQlPC7Nq4=
+github.com/notwithering/argo v0.0.0-20240229223756-e7c7a26683a5 h1:FTj08Yq30/JzBPPtGVPZAObzQSjOo0fv0vY8dZU7kbg=
+github.com/notwithering/argo v0.0.0-20240229223756-e7c7a26683a5/go.mod h1:r9u4NvZh8D4XFSTquh/uhZtIN+jd8qkUvb62MSex/Rg=
+github.com/mattn/go-sqlite3 v1.14.22 h1:2gZY6PC6kBnID23Tichd1K+Z0oS6nE/XwU+Vz/5o4kU=
+github.com/mattn/go-sqlite3 v1.14.22/go.mod h1:Uh1q+B4BYcTPb+yiD3kU8Ct7aC0hY9fxUwlHK0RXw+Y=
+golang.org/x/crypto v0.20.0 h1:jmAMJJZXr5KiCw05dfYK9QnqaqKLYXijU23lsEdcQqg=
+golang.org/x/crypto v0.20.0/go.mod h1:Xwo95rrVNIoSMx9wa1JroENMToLWn3RNVrTBpLHgZPQ=

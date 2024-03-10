@@ -17,7 +17,12 @@ var exit = make(chan error, 1)
 func main() {
 	defer db.Close()
 
-	http.HandleFunc("/", server)
+	http.HandleFunc("/", root)
+	http.HandleFunc("/register", register)
+	http.HandleFunc("/home", home)
+	http.HandleFunc("/settings", settings)
+	http.HandleFunc("/login", settings)
+
 	http.HandleFunc("/api/v1/", apiv1)
 	http.Handle("/cdn/", http.FileServer(http.FS(cdn)))
 

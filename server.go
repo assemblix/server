@@ -8,29 +8,9 @@ import (
 	"time"
 )
 
-func server(w http.ResponseWriter, r *http.Request) {
-	var url []string = strings.Split(strings.TrimRight(strings.TrimLeft(r.URL.Path, "/"), "/"), "/")
+func root(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
-
-	switch url[0] {
-	case "":
-		switch r.Method {
-		case http.MethodGet:
-			http.Redirect(w, r, "/home", http.StatusSeeOther)
-			return
-		default:
-			w.WriteHeader(http.StatusMethodNotAllowed)
-			return
-		}
-	case "register":
-		register(w, r)
-	case "home":
-		home(w, r)
-	case "settings":
-		settings(w, r)
-	case "login":
-		login(w, r)
-	}
+	http.Redirect(w, r, "/home", http.StatusSeeOther)
 }
 
 func apiv1(w http.ResponseWriter, r *http.Request) {

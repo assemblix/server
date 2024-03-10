@@ -7,14 +7,13 @@ import (
 	"os/exec"
 	"strconv"
 	"strings"
+
+	"github.com/notwithering/argo"
 )
 
 const (
 	ps1 string = "> "
-	ps2 string = ">> "
 )
-
-var cliBrodcast = make(chan string)
 
 func cli() error {
 	var license string = "Assemblix Server"
@@ -29,6 +28,7 @@ func cli() error {
 		for scanner.Scan() {
 			if line == 3 {
 				license += "  " + scanner.Text()
+				break
 			}
 			line++
 		}
@@ -46,34 +46,9 @@ func cli() error {
 		}
 		in = strings.TrimRight(in, "\n")
 
-		var args = make([]string, 9)
-
-		var index int
-		var escape bool = false
-		for _, c := range in {
-			if index >= len(args) {
-				break
-			}
-			switch c {
-			case '\\':
-				escape = true
-			default:
-				if escape {
-					switch c {
-					case 'n':
-						args[index] += "\n"
-					case '\\':
-						args[index] += "\\"
-					case ' ':
-						args[index] += " "
-
-					}
-				} else if c == ' ' {
-					index++
-				} else {
-					args[index] += string(c)
-				}
-			}
+		args, invalid := argo.Parse(in)
+		if invalid {
+			continue
 		}
 
 		switch args[0] {
@@ -90,7 +65,7 @@ func cli() error {
 			cmd := exec.Command("clear")
 			cmd.Stdout = os.Stdout
 			if err := cmd.Run(); err != nil {
-				fmt.Println(err)
+				fmt.Printf("%s: %s", args[0], err)
 				continue
 			}
 		case "db":
@@ -111,6 +86,7 @@ func cli() error {
 
 			var defaults int
 
+		useradd:
 			for i := 1; i < len(args); i++ {
 				switch args[i] {
 				case "-c", "--cash":
@@ -130,7 +106,7 @@ func cli() error {
 				case "-a", "--admin":
 					admin = true
 				case "":
-					break
+					break useradd
 				default:
 					defaults++
 					switch defaults {
