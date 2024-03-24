@@ -15,7 +15,7 @@ var logFile *os.File
 func init() {
 	switch runtime.GOOS {
 	case "windows":
-		dir := fmt.Sprintf("C:\\ProgramData\\%s\\", appName)
+		dir := "C:\\ProgramData\\assemblix\\server"
 		err := os.Mkdir(dir, 0o755)
 		if err != nil {
 			logWarning(err)

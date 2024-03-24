@@ -3,7 +3,6 @@ package main
 const ( // server
 	port string = ":8080"
 
-	appName   string = "AssemblixServer" // used for log directory
 	logFormat string = "[dateTtime] [type] error"
 )
 
