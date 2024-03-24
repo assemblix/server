@@ -52,15 +52,8 @@ func apiv1(w http.ResponseWriter, r *http.Request) {
 		w.Write(message)
 	}
 
-	var url []string = strings.Split( // /api/v1/user/ -> [user] && /api/v1/something/etc -> [something, etc]
-		strings.TrimRight(
-			strings.TrimLeft(
-				strings.TrimLeft(
-					r.URL.Path,
-					"/"),
-				"/api/v1"),
-			"/"),
-		"/")
+	var url []string = strings.Split(r.PathValue("endpoint"), "/")
+
 	w.Header().Set("Content-Type", "application/json")
 
 	switch url[0] {
