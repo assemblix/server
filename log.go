@@ -32,6 +32,8 @@ func init() {
 			break
 		}
 		logDir = dir
+	default:
+		logDir = "./"
 	}
 
 	var err error
