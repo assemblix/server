@@ -16,7 +16,7 @@ func init() {
 	switch runtime.GOOS {
 	case "windows":
 		dir := "C:\\ProgramData\\assemblix\\server"
-		err := os.Mkdir(dir, 0o755)
+		err := os.Mkdir(dir, 0o664)
 		if err != nil {
 			logWarning(err)
 			logDir = "./"
