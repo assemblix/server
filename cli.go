@@ -48,6 +48,7 @@ func cli() error {
 
 		args, invalid := argo.Parse(in)
 		if invalid {
+			fmt.Println("argo: syntax error")
 			continue
 		}
 
