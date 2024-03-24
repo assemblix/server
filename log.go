@@ -76,25 +76,25 @@ func logInfo(err error) {
 func parseFormat(logType string, err error) string {
 	result := regexp.MustCompile(`(\\)?date`).ReplaceAllStringFunc(logFormat, func(match string) string {
 		if match[0] == '\\' {
-			return match
+			return match[1:]
 		}
 		return time.Now().Format("2006-01-02")
 	})
 	result = regexp.MustCompile(`(\\)?time`).ReplaceAllStringFunc(result, func(match string) string {
 		if match[0] == '\\' {
-			return match
+			return match[1:]
 		}
 		return time.Now().Format("15:04:05")
 	})
 	result = regexp.MustCompile(`(\\)?type`).ReplaceAllStringFunc(result, func(match string) string {
 		if match[0] == '\\' {
-			return match
+			return match[1:]
 		}
 		return logType
 	})
 	result = regexp.MustCompile(`(\\)?error`).ReplaceAllStringFunc(result, func(match string) string {
 		if match[0] == '\\' {
-			return match
+			return match[1:]
 		}
 		return err.Error()
 	})
