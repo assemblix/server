@@ -51,6 +51,10 @@ func cli() error {
 			continue
 		}
 
+		if len(args) == 0 {
+			continue
+		}
+
 		switch args[0] {
 		case "help":
 			fmt.Println(" help       : show this menu")
