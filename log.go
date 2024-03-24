@@ -15,7 +15,7 @@ var logFile *os.File
 func init() {
 	switch runtime.GOOS {
 	case "windows":
-		dir := "C:\\ProgramData\\assemblix\\server"
+		dir := "C:\\ProgramData\\assemblix"
 		err := os.Mkdir(dir, 0o664)
 		if err != nil {
 			logWarning(err)
@@ -23,12 +23,18 @@ func init() {
 		}
 		logDir = dir
 	case "linux", "darwin":
-		logDir = "/var/log/"
+		dir := "/var/log/assemblix"
+		err := os.Mkdir(dir, 0o664)
+		if err != nil {
+			logWarning(err)
+			logDir = "./"
+		}
+		logDir = dir
 	}
 
 	var err error
 	for {
-		logFile, err = os.OpenFile(filepath.Join(logDir, "assemblixserver.log"), os.O_APPEND|os.O_CREATE, 0o644)
+		logFile, err = os.OpenFile(filepath.Join(logDir, "server.log"), os.O_APPEND|os.O_CREATE, 0o644)
 		if err != nil {
 			logWarning(err)
 			logDir = "./"
