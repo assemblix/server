@@ -20,6 +20,7 @@ func init() {
 		if err != nil {
 			logWarning(err)
 			logDir = "./"
+			break
 		}
 		logDir = dir
 	case "linux", "darwin":
@@ -28,6 +29,7 @@ func init() {
 		if err != nil {
 			logWarning(err)
 			logDir = "./"
+			break
 		}
 		logDir = dir
 	}
