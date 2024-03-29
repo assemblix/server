@@ -2,6 +2,7 @@ package main
 
 import (
 	"embed"
+	"flag"
 	"fmt"
 	"net/http"
 )
@@ -14,7 +15,12 @@ var cdn embed.FS
 
 var exit = make(chan error, 1)
 
+var noshell bool
+
 func main() {
+	flag.BoolVar(&noshell, "-no-shell", false, "disables the cli")
+	flag.Parse()
+
 	defer db.Close()
 
 	http.HandleFunc("/", root)
@@ -26,9 +32,11 @@ func main() {
 	http.HandleFunc("/api/v1/{endpoint...}", apiv1)
 	http.Handle("/cdn/", http.FileServer(http.FS(cdn)))
 
-	go func() {
-		exit <- cli()
-	}()
+	if !noshell {
+		go func() {
+			exit <- cli()
+		}()
+	}
 	go func() {
 		if err := http.ListenAndServe(port, nil); err != nil {
 			logError(err)
