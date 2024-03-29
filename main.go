@@ -18,7 +18,7 @@ var exit = make(chan error, 1)
 var noshell bool
 
 func main() {
-	flag.BoolVar(&noshell, "-no-shell", false, "disables the cli")
+	flag.BoolVar(&noshell, "no-shell", false, "disables the cli")
 	flag.Parse()
 
 	defer db.Close()
